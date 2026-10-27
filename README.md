@@ -16,6 +16,7 @@ artifact path (`/artifacts/{deploymentId}/{digest}/`, exact files only):
 - `metro.config.js` swaps two expo-router internals in preview web builds only:
   the entry passes the page's route to `ExpoRoot`, and linking is disabled, so the
   router never calls `history.pushState/replaceState` (the review bridge treats
-  those as a document change). In-app navigation stays in memory.
+  those as a document change). In-app navigation stays in memory. The build
+  fails if the shims were not bundled (e.g. after an expo-router upgrade).
 
 `npm test` covers the post-build script.

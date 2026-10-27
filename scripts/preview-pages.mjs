@@ -5,7 +5,7 @@
 // /artifacts/{deploymentId}/{digest}/ with exact-file lookups only (no SPA
 // fallback, no directory index below the root). The digest is computed from
 // the build output, so the export cannot know its own base path. This step:
-//   1. replaces the placeholder base path baked in by app.config.js with
+//   1. replaces the placeholder base path baked in by app.config (experiments.baseUrl) with
 //      relative URLs (HTML/JS: resolved against the page's <base>, CSS:
 //      relative to the stylesheet itself);
 //   2. writes one HTML page per screen of .studio/design-screens.json
@@ -21,12 +21,17 @@ export const BASE_TOKEN = '/__aistudio_preview_base__';
 export const ROUTE_META = 'aistudio-preview-route';
 const SEGMENT = /^[A-Za-z0-9._~-]+$/;
 const REWRITTEN = new Set(['.html', '.js', '.css']);
+// Set by the preview-only Metro shims (src/preview/web). If an expo-router upgrade
+// moves the redirected modules, the shims stop applying silently and the router
+// calls the History API again; fail the build instead.
+export const SHIM_MARKERS = ['__aistudioPreviewEntry', '__aistudioStaticLinking'];
 
 export function routeFile(route) {
   if (typeof route !== 'string' || !route.startsWith('/')) throw new Error(`Invalid route: ${route}`);
   if (route === '/') return 'index.html';
   const segments = route.slice(1).split('/');
   if (segments.some(s => !SEGMENT.test(s) || s === '.' || s === '..')) throw new Error(`Unsafe route: ${route}`);
+  if (segments.length === 1 && segments[0] === 'index') throw new Error('Use "/" instead of "/index"');
   return `${segments.join('/')}.html`;
 }
 
@@ -78,6 +83,10 @@ export async function buildPreviewPages(dist, manifestPath) {
     rewritten++;
   }
   if (rewritten === 0) throw new Error(`No ${BASE_TOKEN} found: was the export run with EXPO_PUBLIC_PREVIEW=1?`);
+  const scripts = (await regularFiles(dist)).filter(path => path.endsWith('.js'));
+  const bundle = (await Promise.all(scripts.map(path => readFile(path, 'utf8')))).join('\n');
+  const missing = SHIM_MARKERS.filter(marker => !bundle.includes(marker));
+  if (missing.length) throw new Error(`Preview router shims not bundled (${missing.join(', ')}): check metro.config.js`);
   const template = await readFile(join(dist, 'index.html'), 'utf8');
   for (const route of routes) {
     const { file, html } = routePage(template, route);

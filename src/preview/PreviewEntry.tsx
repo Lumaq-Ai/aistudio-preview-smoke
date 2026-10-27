@@ -4,9 +4,12 @@
 import { ctx } from 'expo-router/_ctx';
 import { ExpoRoot } from 'expo-router/build/ExpoRoot';
 import { Head } from 'expo-router/build/head';
-import { readPreviewRoute } from './previewRoute';
+import { requirePreviewRoute } from './previewLocation';
 
-const location = typeof document === 'undefined' ? undefined : readPreviewRoute(document);
+const location = typeof document === 'undefined' ? undefined : requirePreviewRoute(document);
+
+// scripts/preview-pages.mjs checks this marker is bundled (the shim really applied).
+(globalThis as Record<string, unknown>).__aistudioPreviewEntry = true;
 
 export function App() {
   return (

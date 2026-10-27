@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "screens": [
+    { "id": "home", "name": "Home", "route": "/" },
+    { "id": "about", "name": "About", "route": "/about" },
+    { "id": "profile", "name": "Profile settings", "route": "/settings/profile" }
+  ]
+}

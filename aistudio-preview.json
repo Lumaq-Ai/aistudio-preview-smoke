@@ -1,5 +1,5 @@
 {
   "install": ["npm", "ci", "--offline", "--no-audit", "--no-fund"],
-  "build": ["npm", "run", "build"],
+  "build": ["npm", "run", "build:preview"],
   "outputDir": "dist"
 }

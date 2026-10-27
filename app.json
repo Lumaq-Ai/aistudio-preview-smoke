@@ -1,0 +1,10 @@
+{
+  "expo": {
+    "name": "Preview Smoke",
+    "slug": "aistudio-preview-smoke",
+    "scheme": "previewsmoke",
+    "version": "1.0.0",
+    "web": { "bundler": "metro", "output": "single" },
+    "plugins": ["expo-router"]
+  }
+}
